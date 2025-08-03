@@ -5,6 +5,10 @@ import { expressMiddleware } from "@apollo/server/express4";
 import bodyParser from "body-parser";
 import cors from 'cors';
 import { User } from "./user";
+import { GraphqlContext } from "../types/interfaces";
+import JWTService from "../services/jwt";
+import { Tweet } from "./tweet";
+import { resolvers } from './user/resolvers';
 
 export async function initServer() {
   const app = express();
@@ -12,23 +16,38 @@ export async function initServer() {
   app.use(cors());
   app.use(bodyParser.json());
   
-  const graphqlServer = new ApolloServer({
+  const graphqlServer = new ApolloServer<GraphqlContext>({
     typeDefs: `
     ${User.types}
+    ${Tweet.types}
     type Query {
       ${User.queries}
+      ${Tweet.queries}
+      }
+    type Mutation {
+      ${Tweet.mutation}
       }
       `,
       resolvers: {
         Query: {
-          ...User.resolvers
-        }
+          ...User.resolvers,
+          ...Tweet.queryResolver
+        },
+        Mutation: {
+          ...Tweet.resolvers,
+        },
+        ...Tweet.extraResolver,
+        ...User.extraResolver
       }
     });
     
     await graphqlServer.start();
     
-    app.use("/graphql", expressMiddleware(graphqlServer));
+    app.use("/graphql", expressMiddleware(graphqlServer,{
+      context: async ({req,res}) =>{
+        return { user: req.headers.authorization ? await JWTService.decodeToken(req.headers.authorization) : undefined }
+      }
+    }));
 
   return app;
 }

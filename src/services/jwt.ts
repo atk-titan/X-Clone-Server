@@ -1,19 +1,33 @@
-import { prismaClient } from "../client/db";
 import JWT from "jsonwebtoken";
-import { sign } from './../../node_modules/@types/jsonwebtoken/index.d';
 import { User } from "@prisma/client";
+import { JWTUser } from "../types/interfaces";
+import dotenv from 'dotenv';
+
+dotenv.config({path:"../../.env"})
+
+const JWT_secret = process.env.JWT_secret || "";
 
 class JWTService{
     public static async generateTokenForUser(user:User){
-
-        const payload = {
+        
+        const payload : JWTUser = {
             id:user?.id,
             email:user?.email
         };
-
-        const token = JWT.sign(payload,'secret');
+        
+        const token = JWT.sign(payload,JWT_secret);
 
         return token;
+    }
+    public static async decodeToken(token:string){
+        // console.log(token);
+        try{     
+            const user = JWT.verify(token.split(" ")[1] , JWT_secret) as JWTUser;
+
+            return user; 
+        }catch(err){
+            return null;
+        }
     }
 }
 
