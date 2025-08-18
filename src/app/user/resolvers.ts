@@ -66,6 +66,15 @@ export const resolvers = {
         });
         // console.log(user);
         return user;
+    },
+    getUserById : async ( parent : any , { id }:{ id: string } , context : GraphqlContext ) => {
+        const user = await prismaClient.user.findUnique({
+            where:{
+                id:id
+            }
+        });
+
+        return user;
     }
 }
 
