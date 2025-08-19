@@ -3,15 +3,9 @@ import { prismaClient } from "../../client/db";
 import { Tweet } from "@prisma/client";
 import { S3Client , PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import UserService from "../../services/user";
+import TweetService, { Payload } from "../../services/tweet";
 
-import dotenv from "dotenv";
-dotenv.config();
-
-interface Payload{
-    content: string;
-    imageURL: string[];
-    videoURL?: string;
-}
 
 const s3Client = new S3Client({
     region: "ap-south-1",
@@ -22,7 +16,7 @@ const s3Client = new S3Client({
 })
 
 export const queryResolver = {
-    getAllTweets: async ( parent: any ) => await prismaClient.tweet.findMany(),
+    getAllTweets: async ( parent: any ) => await TweetService.getAllTweets(),
     getSignedUrlForTweet: async ( parent: any , { imageType }:{ imageType: string } , ctx: GraphqlContext ) => {
         if( !ctx.user || !ctx.user.id )
             throw new Error("User Not Authenticated.");
@@ -51,25 +45,19 @@ export const resolvers = {
     createTweet: async (
         parent: any ,
         { payload }:{ payload:Payload },
-        context: GraphqlContext
+        ctx: GraphqlContext
     ) => {
-        if(!context.user) throw new Error("User not Authenticated");
-        const tweet = await prismaClient.tweet.create({
-            data:{
-                content: payload.content,
-                imageURL: payload.imageURL,
-                videoURL: payload.videoURL,
-                author: { connect: { id:context.user.id } },
-            },
-        });
+        if(!ctx.user) throw new Error("User not Authenticated");
 
-        return tweet;
+        const tweet = await TweetService.createTweet({
+            ...payload,
+            userId: ctx.user.id
+        })
     },
 }
 
 export const extraResolver = {
     Tweet : {
-        author: ( parent: Tweet ) => 
-            prismaClient.user.findUnique({where:{ id: parent.authorId }})
+        author: ( parent: Tweet ) => UserService.getUserById(parent.authorId)
     }
 }

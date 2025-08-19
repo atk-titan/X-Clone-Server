@@ -1,9 +1,6 @@
 import JWT from "jsonwebtoken";
 import { User } from "@prisma/client";
 import { JWTUser } from "../types/interfaces";
-import dotenv from 'dotenv';
-
-dotenv.config({path:"../../.env"})
 
 const JWT_secret = process.env.JWT_secret || "";
 
