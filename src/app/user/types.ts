@@ -10,5 +10,8 @@ export const types=  `#graphql
 
         createdAt: String
         updatedAt: String
+
+        follower: [User]
+        following: [User]
     }
 `;

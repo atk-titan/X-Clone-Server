@@ -1,7 +1,8 @@
 import { types } from "./types";
 import { queries } from "./queries";
-import { extraResolver, resolvers } from "./resolvers";
+import { extraResolver, mutationres, resolvers } from "./resolvers";
+import { mutations } from "./mutations";
 
 export const User = {
-    types, queries, resolvers, extraResolver
+    types, queries, mutations, resolvers, extraResolver , mutationres
 };
