@@ -68,13 +68,23 @@ class UserService{
     }
 
     public static async followUser(from:string, to:string){
-        const _ = await prismaClient.follows.create({
-            data:{
-                follower:{ connect: { id: from } },
-                following:{ connect: { id:to } }
+        const alreadyFollowing = await prismaClient.follows.findUnique({
+            where:{
+                followerId_followingId:{ followerId: from, followingId: to }
             }
-        })
-        return _;
+        });
+
+        if(!alreadyFollowing){
+            const _ = await prismaClient.follows.create({
+                data:{
+                    follower:{ connect: { id: from } },
+                    following:{ connect: { id:to } }
+                }
+            })
+            return _;
+        }
+
+        return alreadyFollowing;
     }
 
     public static async unfollowUser(from:string, to:string){
