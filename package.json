@@ -20,12 +20,14 @@
     "@aws-sdk/s3-request-presigner": "^3.864.0",
     "@prisma/client": "^6.11.1",
     "@types/node": "^24.0.13",
+    "@upstash/redis": "^1.35.6",
     "axios": "^1.10.0",
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "graphql": "^16.11.0",
+    "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.2",
     "prisma": "^6.11.1"
   }

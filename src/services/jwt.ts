@@ -4,7 +4,6 @@ import { JWTUser } from "../types/interfaces";
 
 const JWT_secret = process.env.JWT_secret || "";
 
-// caching starts from now onn
 class JWTService{
     public static async generateTokenForUser(user:User){
         

@@ -1,4 +1,5 @@
 import { prismaClient } from "../client/db";
+import { redisClient } from "../redis";
 import { GraphqlContext } from "../types/interfaces";
 
 export interface Payload{
@@ -20,15 +21,22 @@ class TweetService{
             },
         });
 
+        await redisClient.del('tweets:all');
+
         return tweet;
     }
 
     public static async getAllTweets(){
+        const cached = await redisClient.get("tweets:all");
+        if(cached) return cached;
+
         const tweets = await prismaClient.tweet.findMany({
             orderBy:{
                 createdAt:"desc"
             }
         });
+
+        await redisClient.set(`tweets:all`,JSON.stringify(tweets))
 
         return tweets;
     }
