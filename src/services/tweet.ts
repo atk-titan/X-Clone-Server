@@ -10,8 +10,8 @@ export interface Payload{
 }
 
 class TweetService{
-    public static async createTweet( payload: Payload , userId: string){
-        const key = `Rate-Limit:${userId}:count`
+    public static async createTweet( payload: Payload){
+        const key = `Rate-Limit:${payload.userId}:count`
         
         const rate = await redisClient.incr(key);
         if(rate === 1){
