@@ -10,7 +10,15 @@ export interface Payload{
 }
 
 class TweetService{
-    public static async createTweet( payload: Payload ){
+    public static async createTweet( payload: Payload , userId: string){
+        const key = `Rate-Limit:${userId}:count`
+        
+        const rate = await redisClient.incr(key);
+        if(rate === 1){
+            await redisClient.expire(key, 10);
+        }
+
+        if(rate > 2) throw new Error("Too many requests. Please wait before tweeting again.");
         
         const tweet = await prismaClient.tweet.create({
             data:{

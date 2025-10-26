@@ -52,7 +52,7 @@ export const resolvers = {
         const tweet = await TweetService.createTweet({
             ...payload,
             userId: ctx.user.id
-        })
+        });
     },
 }
 
